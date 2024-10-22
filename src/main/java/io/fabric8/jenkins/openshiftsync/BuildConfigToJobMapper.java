@@ -35,6 +35,7 @@ import org.jenkinsci.plugins.workflow.flow.FlowDefinition;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
 
+import hudson.model.Descriptor.FormException;
 import hudson.plugins.git.BranchSpec;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.SubmoduleConfig;
@@ -59,8 +60,9 @@ public class BuildConfigToJobMapper {
      * @param bc A BuildConfig object.
      * @return the FlowDefinition representing a Jenkins Build built from a
      *         pipeline.
+     * @throws FormException 
      */
-    public static FlowDefinition mapBuildConfigToFlow(BuildConfig bc) throws IOException {
+    public static FlowDefinition mapBuildConfigToFlow(BuildConfig bc) throws IOException, FormException {
         if (!OpenShiftUtils.isPipelineStrategyBuildConfig(bc)) {
             return null;
         }

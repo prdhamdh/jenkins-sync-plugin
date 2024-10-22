@@ -29,6 +29,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hudson.model.Descriptor.FormException;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
@@ -88,8 +89,7 @@ public class BuildClusterInformer implements ResourceEventHandler<Build>, Lifecy
                 LOGGER.info("Build informer received add event for: " + name);
                 try {
                     addEventToJenkinsJobRun(obj);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
+                } catch (IOException | FormException e) {
                     e.printStackTrace();
                 }
             }
@@ -106,7 +106,11 @@ public class BuildClusterInformer implements ResourceEventHandler<Build>, Lifecy
                 String oldRv = oldObj.getMetadata().getResourceVersion();
                 String newRv = newObj.getMetadata().getResourceVersion();
                 LOGGER.info("Build informer received update event for: " + oldRv + " to: " + newRv);
-                modifyEventToJenkinsJobRun(newObj);
+                try {
+                    modifyEventToJenkinsJobRun(newObj);
+                } catch (FormException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

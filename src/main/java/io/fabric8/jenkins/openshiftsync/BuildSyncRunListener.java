@@ -77,6 +77,7 @@ import hudson.PluginManager;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
 import hudson.triggers.SafeTimerTask;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -182,7 +183,11 @@ public class BuildSyncRunListener extends RunListener<Run> {
             runsToPoll.remove(run);
             boolean updated = pollRun(run);
             logger.info("onCompleted " + run.getUrl() + "updated: " + updated);
-            maybeScheduleNext(((WorkflowRun) run).getParent());
+            try {
+                maybeScheduleNext(((WorkflowRun) run).getParent());
+            } catch (FormException e) {
+                e.printStackTrace();
+            }
         }
         super.onCompleted(run, listener);
     }
@@ -193,7 +198,11 @@ public class BuildSyncRunListener extends RunListener<Run> {
             runsToPoll.remove(run);
             boolean updated = pollRun(run);
             logger.info("onDeleted " + run.getUrl() + "updated: " + updated);
-            maybeScheduleNext(((WorkflowRun) run).getParent());
+            try {
+                maybeScheduleNext(((WorkflowRun) run).getParent());
+            } catch (FormException e) {
+                e.printStackTrace();
+            }
         }
         super.onDeleted(run);
     }

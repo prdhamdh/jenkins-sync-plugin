@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+import hudson.model.Descriptor.FormException;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretList;
@@ -16,7 +17,7 @@ public class SecretManager {
     private final static Logger logger = Logger.getLogger(SecretManager.class.getName());
     private final static ConcurrentHashMap<String, String> trackedSecrets = new ConcurrentHashMap<>();
 
-    public static void insertOrUpdateCredentialFromSecret(final Secret secret) {
+    public static void insertOrUpdateCredentialFromSecret(final Secret secret) throws FormException {
         if (secret != null) {
             ObjectMeta metadata = secret.getMetadata();
             if (metadata != null) {
@@ -52,7 +53,7 @@ public class SecretManager {
         }
     }
 
-    protected static void updateCredential(Secret secret) {
+    protected static void updateCredential(Secret secret) throws FormException {
         if (secret != null) {
             ObjectMeta metadata = secret.getMetadata();
             if (metadata != null) {

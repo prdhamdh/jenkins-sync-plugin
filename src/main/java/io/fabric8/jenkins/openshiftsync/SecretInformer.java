@@ -29,6 +29,7 @@ import io.fabric8.openshift.client.OpenShiftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hudson.model.Descriptor.FormException;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext;
@@ -79,7 +80,11 @@ public class SecretInformer implements ResourceEventHandler<Secret>, Lifecyclabl
             ObjectMeta metadata = obj.getMetadata();
             String name = metadata.getName();
             LOGGER.info("Secret informer received add event for: " + name);
-            SecretManager.insertOrUpdateCredentialFromSecret(obj);
+            try {
+                SecretManager.insertOrUpdateCredentialFromSecret(obj);
+            } catch (FormException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -89,7 +94,11 @@ public class SecretInformer implements ResourceEventHandler<Secret>, Lifecyclabl
         if (oldObj != null) {
             final String name = oldObj.getMetadata().getName();
             LOGGER.info("Secret informer received update event for: {}", name);
-            SecretManager.updateCredential(newObj);
+            try {
+                SecretManager.updateCredential(newObj);
+            } catch (FormException e) {
+                e.printStackTrace();
+            }
         }
     }
 

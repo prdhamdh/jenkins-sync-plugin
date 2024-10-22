@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import hudson.init.InitMilestone;
+import hudson.model.Descriptor.FormException;
 import hudson.triggers.SafeTimerTask;
 import jenkins.model.Jenkins;
 
@@ -29,7 +30,7 @@ public class GlobalPluginConfigurationTimerTask extends SafeTimerTask {
         start();
     }
 
-    private void start() {
+    private void start() throws FormException {
         if (GlobalPluginConfiguration.get().isUseClusterMode()) {
             startClusterInformers();
             logger.info("All the cluster informers have been registered!! ... starting all registered informers");
@@ -92,7 +93,7 @@ public class GlobalPluginConfigurationTimerTask extends SafeTimerTask {
         }
     }
 
-    private void startClusterInformers() {
+    private void startClusterInformers() throws FormException {
         logger.info("Initializing cluster informers ...");
         GlobalPluginConfiguration configuration = GlobalPluginConfiguration.get();
         if (configuration.isSyncBuildConfigsAndBuilds()) {

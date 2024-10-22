@@ -51,6 +51,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hudson.model.Fingerprint;
+import hudson.model.Descriptor.FormException;
 import hudson.security.ACL;
 import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -101,7 +102,7 @@ public class CredentialsUtils {
         return null;
     }
 
-    public static String updateSourceCredentials(BuildConfig buildConfig) throws IOException {
+    public static String updateSourceCredentials(BuildConfig buildConfig) throws IOException, FormException {
         String credentialsName = null;
         Secret sourceSecret = getSourceSecretForBuildConfig(buildConfig);
         if (sourceSecret != null) {
@@ -171,8 +172,9 @@ public class CredentialsUtils {
      * @param secret the secret to insert
      * @return the insert secret name
      * @throws IOException when the update of the secret fails
+     * @throws FormException 
      */
-    public static String upsertCredential(Secret secret) throws IOException {
+    public static String upsertCredential(Secret secret) throws IOException, FormException {
         if (secret != null) {
             ObjectMeta metadata = secret.getMetadata();
             if (metadata != null) {
@@ -182,7 +184,7 @@ public class CredentialsUtils {
         return null;
     }
 
-    private static String insertOrUpdateCredentialsFromSecret(Secret secret) throws IOException {
+    private static String insertOrUpdateCredentialsFromSecret(Secret secret) throws IOException, FormException {
         if (secret != null) {
             String customSecretName = getSecretCustomName(secret);
             ObjectMeta metadata = secret.getMetadata();
@@ -355,7 +357,7 @@ public class CredentialsUtils {
                 new String(Base64.getEncoder().encode(text.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
     }
 
-    private static Credentials secretToCredentials(Secret secret) {
+    private static Credentials secretToCredentials(Secret secret) throws FormException {
         String namespace = secret.getMetadata().getNamespace();
         String name = secret.getMetadata().getName();
         Map<String, String> data = secret.getData();
@@ -473,7 +475,7 @@ public class CredentialsUtils {
     }
 
     private static Credentials newUsernamePasswordCredentials(String secretName, String usernameData,
-            String passwordData) {
+            String passwordData) throws FormException {
         if (secretName == null || secretName.length() == 0 || usernameData == null || usernameData.length() == 0
                 || passwordData == null || passwordData.length() == 0) {
             logger.log(WARNING,

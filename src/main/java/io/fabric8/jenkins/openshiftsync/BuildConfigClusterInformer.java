@@ -28,6 +28,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hudson.model.Descriptor.FormException;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
@@ -53,7 +54,7 @@ public class BuildConfigClusterInformer implements ResourceEventHandler<BuildCon
         return 1_000 * GlobalPluginConfiguration.get().getBuildConfigListInterval();
     }
 
-    public void start() {
+    public void start() throws FormException {
         LOGGER.info("Starting BuildConfig informer for " + namespaces + "!!");
         LOGGER.debug("listing BuildConfig resources");
         SharedInformerFactory factory = getInformerFactory();
@@ -86,7 +87,6 @@ public class BuildConfigClusterInformer implements ResourceEventHandler<BuildCon
                 try {
                     upsertJob(obj);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -106,7 +106,6 @@ public class BuildConfigClusterInformer implements ResourceEventHandler<BuildCon
                 try {
                     modifyEventToJenkinsJob(newObj);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -123,7 +122,6 @@ public class BuildConfigClusterInformer implements ResourceEventHandler<BuildCon
                 try {
                     deleteEventToJenkinsJob(obj);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }

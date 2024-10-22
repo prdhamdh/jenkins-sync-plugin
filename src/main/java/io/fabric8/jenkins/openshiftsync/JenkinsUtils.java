@@ -79,6 +79,7 @@ import hudson.model.RunParameterDefinition;
 import hudson.model.StringParameterDefinition;
 import hudson.model.StringParameterValue;
 import hudson.model.TopLevelItem;
+import hudson.model.Descriptor.FormException;
 import hudson.model.queue.QueueTaskFuture;
 import hudson.plugins.git.RevisionParameterAction;
 import hudson.security.ACL;
@@ -364,8 +365,9 @@ public class JenkinsUtils {
      * @param build linked to it
      * @return true if "job" has been triggered
      * @throws IOException if job cannot be persisted
+     * @throws FormException 
      */
-    public static boolean triggerJob(WorkflowJob job, Build build) throws IOException {
+    public static boolean triggerJob(WorkflowJob job, Build build) throws IOException, FormException {
         String buildConfigName = build.getStatus().getConfig().getName();
         if (isBlank(buildConfigName)) {
             return false;
@@ -696,7 +698,7 @@ public class JenkinsUtils {
         }
     }
 
-    public static void maybeScheduleNext(WorkflowJob job) {
+    public static void maybeScheduleNext(WorkflowJob job) throws FormException {
         BuildConfigProjectProperty bcp = job.getProperty(BuildConfigProjectProperty.class);
         if (bcp == null) {
             return;
@@ -709,7 +711,7 @@ public class JenkinsUtils {
     }
 
     public static void handleBuildList(WorkflowJob job, List<Build> builds,
-                                       BuildConfigProjectProperty buildConfigProjectProperty) {
+                                       BuildConfigProjectProperty buildConfigProjectProperty) throws FormException {
         if (builds.isEmpty()) {
             return;
         }

@@ -49,6 +49,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
+import hudson.model.Descriptor.FormException;
 import hudson.security.ACL;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import io.fabric8.openshift.api.model.Build;
@@ -76,7 +77,7 @@ public class BuildManager {
    */
   protected static final ConcurrentHashMap<String, Build> buildsWithNoBCList = new ConcurrentHashMap<String, Build>();
 
-  public static void onInitialBuilds(BuildList buildList) {
+  public static void onInitialBuilds(BuildList buildList) throws FormException {
     if (buildList == null)
       return;
     List<Build> items = buildList.getItems();
@@ -177,7 +178,7 @@ public class BuildManager {
     }
   }
 
-  static void modifyEventToJenkinsJobRun(Build build) {
+  static void modifyEventToJenkinsJobRun(Build build) throws FormException {
     BuildStatus status = build.getStatus();
     if (status != null && isCancellable(status) && isCancelled(status)) {
       WorkflowJob job = getJobFromBuild(build);
@@ -192,7 +193,7 @@ public class BuildManager {
     }
   }
 
-  public static boolean addEventToJenkinsJobRun(Build build) throws IOException {
+  public static boolean addEventToJenkinsJobRun(Build build) throws IOException, FormException {
     // should have been caught upstack, but just in case since public method
     if (!OpenShiftUtils.isPipelineStrategyBuild(build))
       return false;
@@ -233,7 +234,7 @@ public class BuildManager {
 
   // trigger any builds whose watch events arrived before the
   // corresponding build config watch events
-  public static void flushBuildsWithNoBCList() {
+  public static void flushBuildsWithNoBCList() throws FormException {
 
     ConcurrentHashMap<String, Build> clone;
 
